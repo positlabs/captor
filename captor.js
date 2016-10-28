@@ -68,7 +68,7 @@ class Captor extends EventEmitter {
 	})}
 	
 	startCapture(opts){ return new Promise((resolve, reject) => {
-		console.log('startCapture')
+		// console.log('startCapture')
 		// ffmpeg -t 60 -f avfoundation -i "2:0" -r 6.0 -f image2 tmp/image%04d.jpg
 
 		opts = _.defaults(opts, {

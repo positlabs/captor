@@ -1,36 +1,59 @@
-# express-o
+# Captor
 
-Boilerplate stuff for express projects. Includes...
+ffmpeg screen capture utility for nodejs.
 
-- livereload for styles
-- es6 client-side javascript
-- local pm2 server for keeping logs and automatically restarting when files change
+npm install --save captor
 
+```javascript
 
-## Installation
+	const Captor = require('captor')
+	const captor = new Captor()
 
-[Download ZIP](https://github.com/positlabs/express-o/archive/master.zip)
+	// get a list of available capture devices
 
-Or run this command to install into the current directory. 
+	captor.listDevices().then(deviceList => {
+		
+		// match a device name
+		var deviceIndex = -1
+		Object.keys(deviceList).forEach(index => {
+			if(deviceList[index] === 'Capture screen 0'){
+				deviceIndex = index
+			}
+		})
 
-```bash
-curl -LO https://github.com/positlabs/express-o/archive/master.zip && unzip master.zip && rm master.zip && cp -R express-o-master/ ./ && rm -R ./express-o-master
+		return new Promise((resolve, reject) => { 
+			if(deviceIndex !== -1){
+				resolve(deviceIndex)
+			}else{
+				reject(`${videoDeviceName} not found in deviceList: ${JSON.stringify(deviceList)}`)
+			}
+		})
+
+	}).then(deviceIndex => {
+
+		// run screen capture for 10s, capturing 6 frames per second
+
+		var imagesPath = `./tmp/image_${Date.now()}_%04d.jpg`
+		return captor.startCapture({
+			videoDevice: deviceIndex,
+			output: imagesPath,
+			duration: 10,
+			fps: 6
+		})
+
+	}).then(imagesPath => {
+
+		// pass the frames onto the video encoder
+
+		return captor.encodeVideo({
+			input: imagesPath,
+			output: `out_${Date.now()}.mp4`
+		})
+
+	}).then(e => {
+
+		// console.log('RECORDING COMPLETE!!')
+
+	}).catch(e => { console.error('ERROR CODE:', e) })
 ```
 
-## Development
-
-### CLI Tools
-
-- Install [NodeJS](https://nodejs.org/en/) LTS version, and update package.json's engines field if necessary
-
-- Install [PM2](https://github.com/Unitech/pm2). This allows us to edit server files and automatically restart the server to pick up new changes. Also keeps logs organized, and can run in the background.
-
-### Setup
-
-`npm install`: install node_modules
-
-### Local server
-
-`npm run start-local`: start a dev server on localhost:3000, and show logs
-
-Edit local server config in ./dev/env/local.json
