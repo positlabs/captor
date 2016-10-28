@@ -61,6 +61,8 @@ class Captor extends EventEmitter {
 				})
 				resolve(output)
 			// }else{
+				// FIXME: I'm seeing exit codes that suggest an error, but the device list comes back just fine.
+				// try uninstalling soundflower
 				// reject(`child process exited with code ${code}`)
 			// }
 		})
@@ -68,8 +70,6 @@ class Captor extends EventEmitter {
 	})}
 	
 	startCapture(opts){ return new Promise((resolve, reject) => {
-		// console.log('startCapture')
-		// ffmpeg -t 60 -f avfoundation -i "2:0" -r 6.0 -f image2 tmp/image%04d.jpg
 
 		opts = _.defaults(opts, {
 			duration: undefined,
@@ -117,8 +117,8 @@ class Captor extends EventEmitter {
 	})}
 	
 	/*
-		kill the process
-		return a promise. reject if there's nothing to kill	
+		kill the capture process
+		return a promise. rejects if there's nothing to kill	
 	*/ 
 	stopCapture(){ return new Promise((resolve, reject) => {
 
@@ -142,6 +142,7 @@ class Captor extends EventEmitter {
 			output: 'out.mp4'
 		})
 
+		//TODO: probably need to test this on other OSs. maybe omit pix_fmt?
 		var args = [
 			'-i', opts.input,
 			'-pix_fmt', 'yuv422p',
@@ -157,7 +158,7 @@ class Captor extends EventEmitter {
 		ffmpegProcess.on('close', (code) => {
 			// console.log(`child process exited with code ${code}`)
 			if(code === 0){
-				resolve()
+				resolve(opts.output)
 			}else{
 				reject(code)
 			}
@@ -167,6 +168,10 @@ class Captor extends EventEmitter {
 		})
 	})}
 
+	screenshot(){ return new Promise((resolve, reject) => {
+		//TODO
+		resolve()
+	})}
 }
 
 /*

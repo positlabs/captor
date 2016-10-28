@@ -2,7 +2,7 @@
 
 ffmpeg screen capture utility for nodejs.
 
-npm install --save captor
+`npm install --save captor`
 
 ```javascript
 
@@ -50,9 +50,9 @@ npm install --save captor
 			output: `out_${Date.now()}.mp4`
 		})
 
-	}).then(e => {
+	}).then(videoPath => {
 
-		// console.log('RECORDING COMPLETE!!')
+		console.log('RECORDING COMPLETE!!', videoPath)
 
 	}).catch(e => { console.error('ERROR CODE:', e) })
 ```

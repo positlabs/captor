@@ -1,6 +1,6 @@
 {
   "name": "captor",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Desktop screen capture for nodejs",
   "main": "captor.js",
   "scripts": {
