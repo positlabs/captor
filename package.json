@@ -1,0 +1,29 @@
+{
+  "name": "captor",
+  "version": "1.0.0",
+  "description": "Desktop screen capture for nodejs",
+  "main": "captor.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/positlabs/captor.git"
+  },
+  "keywords": [
+    "ffmpeg",
+    "record",
+    "screen",
+    "capture"
+  ],
+  "author": "Josh Beckwith <josh@positlabs.com> (https://github.com/positlabs)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/positlabs/captor/issues"
+  },
+  "homepage": "https://github.com/positlabs/captor#readme",
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.0.9",
+    "lodash": "^4.16.4"
+  }
+}
