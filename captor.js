@@ -1,4 +1,4 @@
-'use strict'
+
 const EventEmitter = require('events')
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
 const spawn = require('child_process').spawn
@@ -70,6 +70,7 @@ class Captor extends EventEmitter {
 	startCapture(opts){ return new Promise((resolve, reject) => {
 		console.log('startCapture')
 		// ffmpeg -t 60 -f avfoundation -i "2:0" -r 6.0 -f image2 tmp/image%04d.jpg
+
 		opts = _.defaults(opts, {
 			duration: undefined,
 			videoDevice: 0,
@@ -102,23 +103,27 @@ class Captor extends EventEmitter {
 		ffmpegProcess.stdout.on('data', data => {
 			// console.log(`stdout: ${data}`)
 		})
-		ffmpegProcess.on('close', (code) => {
+		ffmpegProcess.on('close', code => {
 			// console.log(`child process exited with code ${code}`)
-			// this.emit('capture-complete')
-			resolve(opts.output)
-			//tODO: error handling
-			// console.log(ffmpegProcess)
+			if(code === 0){
+				resolve(opts.output)
+			}else{
+				reject(code)
+			}
 		})
-		ffmpegProcess.on('error', (err) => {
+		ffmpegProcess.on('error', err => {
 			reject('Failed to start capture.')
 		})
 	})}
 	
+	/*
+		kill the process
+		return a promise. reject if there's nothing to kill	
+	*/ 
 	stopCapture(){ return new Promise((resolve, reject) => {
-		//TODO: kill the process
-		//TODO: return a promise. reject if there's nothing to kill? Warn?
+
 		if(this.captureProc){
-			this.captureProc.on('close', (code) => {
+			this.captureProc.on('close', code => {
 				delete this.captureProc
 				resolve(code)
 			})
@@ -131,6 +136,7 @@ class Captor extends EventEmitter {
 	})}
 	
 	encodeVideo(opts){ return new Promise((resolve, reject) => {
+
 		opts = _.defaults(opts, {
 			input: 'image%04d.jpg',
 			output: 'out.mp4'

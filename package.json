@@ -25,5 +25,8 @@
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.9",
     "lodash": "^4.16.4"
+  },
+  "devDependencies": {
+    "fs-extra": "^0.30.0"
   }
 }
