@@ -91,8 +91,14 @@ class Captor extends EventEmitter {
 			`-i`,`${opts.videoDevice}:0`,
 			`-r`,`${opts.fps}`,
 			`-f`,`image2`,
-			opts.output
 		])
+
+		if(opts.vframes) {
+			args.push('-vframes')
+			args.push('1')
+		}
+
+		args.push(opts.output)
 
 		// console.log(args)
 		var ffmpegProcess = spawn(ffmpegPath, args)
@@ -168,26 +174,24 @@ class Captor extends EventEmitter {
 		})
 	})}
 
-	screenshot(){ return new Promise((resolve, reject) => {
-		//TODO
-		resolve()
-	})}
+	/*
+		screenshot({
+			videoDevice: int
+			output: path
+		})
+	*/
+	screenshot(opts){ 
+		var options = {
+			videoDevice: 0,
+			output: `screenshot_${Date.now()}.jpg`,
+			fps: 1,
+			duration: 0,
+			'vframes': 1
+		}
+		options.videoDevice = opts.videoDevice || options.videoDevice
+		options.output = opts.output || options.output
+		return this.startCapture(options)
+	}
 }
-
-/*
-
-ffmpeg -f avfoundation -list_devices true -i ""
-
-Record 60 second timelapse
-
-ffmpeg -t 60 -f avfoundation -i "2:0" -r 6.0 -f image2 tmp/image%04d.jpg
-
-Encode video
-
-ffmpeg -i tmp/image%04d.jpg -pix_fmt yuv422p out.mp4
-
-http://lukemiller.org/index.php/2014/10/ffmpeg-time-lapse-notes/
-
-*/
 
 module.exports = Captor

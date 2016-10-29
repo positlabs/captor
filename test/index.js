@@ -2,13 +2,16 @@
 
 const duration = require('./duration')
 const stopCap = require('./stop-capture')
+const screenshot = require('./screenshot')
 const fs = require('fs-extra')
 
-fs.mkdirSync('./tmp')
+try{ fs.mkdirSync('./tmp') }catch(e){}
 
-duration()
-	.then(stopCap)
+new Promise(resolve => {resolve()})
+	.then(screenshot)
+	// .then(duration)
+	// .then(stopCap)
 	.then(() => {
 		console.log('ALL TESTS PASSED!')
-		fs.remove('./tmp/')
+		// fs.remove('./tmp/')
 	})
