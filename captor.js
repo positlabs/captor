@@ -14,6 +14,9 @@ class Captor extends EventEmitter {
 
 		var results = ''
 
+		//TODO: add support for windows, linux
+		// https://trac.ffmpeg.org/wiki/Capture/Desktop
+		
 		var proc = spawn('ffmpeg', [
 			'-f', 'avfoundation',
 			'-list_devices', 'true',
@@ -69,7 +72,7 @@ class Captor extends EventEmitter {
 		
 	})}
 	
-	startCapture(opts){ return new Promise((resolve, reject) => {
+	capture(opts){ return new Promise((resolve, reject) => {
 
 		opts = _.defaults(opts, {
 			duration: undefined,
@@ -93,6 +96,7 @@ class Captor extends EventEmitter {
 			`-f`,`image2`,
 		])
 
+		// passed in from screenshot
 		if(opts.vframes) {
 			args.push('-vframes')
 			args.push('1')
@@ -101,15 +105,15 @@ class Captor extends EventEmitter {
 		args.push(opts.output)
 
 		// console.log(args)
-		var ffmpegProcess = spawn(ffmpegPath, args)
-		this.captureProc = ffmpegProcess // cache so we can kill later
-		ffmpegProcess.stderr.on('data', err => {
+		var proc = spawn(ffmpegPath, args)
+		this.captureProc = proc // cache so we can kill later
+		proc.stderr.on('data', err => {
 			console.error(`stderr: ${err}`)
 		})
-		ffmpegProcess.stdout.on('data', data => {
+		proc.stdout.on('data', data => {
 			// console.log(`stdout: ${data}`)
 		})
-		ffmpegProcess.on('close', code => {
+		proc.on('close', code => {
 			// console.log(`child process exited with code ${code}`)
 			if(code === 0){
 				resolve(opts.output)
@@ -117,13 +121,14 @@ class Captor extends EventEmitter {
 				reject(code)
 			}
 		})
-		ffmpegProcess.on('error', err => {
+		proc.on('error', err => {
 			reject('Failed to start capture.')
 		})
 	})}
 	
 	/*
-		kill the capture process
+		kill the capture process.
+		useful for stopping a capture that has undefined duration, or cancelling any capture.
 		return a promise. rejects if there's nothing to kill	
 	*/ 
 	stopCapture(){ return new Promise((resolve, reject) => {
@@ -154,14 +159,14 @@ class Captor extends EventEmitter {
 			'-pix_fmt', 'yuv422p',
 			opts.output
 		]
-		var ffmpegProcess = spawn(ffmpegPath, args)
-		ffmpegProcess.stderr.on('data', err => {
+		var proc = spawn(ffmpegPath, args)
+		proc.stderr.on('data', err => {
 			console.error(`stderr: ${err}`)
 		})
-		ffmpegProcess.stdout.on('data', data => {
+		proc.stdout.on('data', data => {
 			// console.log(`stdout: ${data}`)
 		})
-		ffmpegProcess.on('close', (code) => {
+		proc.on('close', (code) => {
 			// console.log(`child process exited with code ${code}`)
 			if(code === 0){
 				resolve(opts.output)
@@ -169,7 +174,7 @@ class Captor extends EventEmitter {
 				reject(code)
 			}
 		})
-		ffmpegProcess.on('error', (err) => {
+		proc.on('error', (err) => {
 			reject('Failed to encode video.')
 		})
 	})}

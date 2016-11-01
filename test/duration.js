@@ -28,7 +28,7 @@ module.exports = function (){
 	}).then(deviceIndex => {
 
 		var imagesPath = `./tmp/image_${Date.now()}_%04d.jpg`
-		return captor.startCapture({
+		return captor.capture({
 			videoDevice: deviceIndex,
 			output: imagesPath,
 			duration: 10,

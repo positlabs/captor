@@ -9,9 +9,9 @@ try{ fs.mkdirSync('./tmp') }catch(e){}
 
 new Promise(resolve => {resolve()})
 	.then(screenshot)
-	// .then(duration)
-	// .then(stopCap)
+	.then(duration)
+	.then(stopCap)
 	.then(() => {
 		console.log('ALL TESTS PASSED!')
-		// fs.remove('./tmp/')
+		fs.remove('./tmp/')
 	})
