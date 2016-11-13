@@ -8,6 +8,14 @@ class Captor extends EventEmitter {
 
 	constructor(){
 		super()
+		_.bindAll(this, [
+			'listDevices',
+			'capture',
+			'getDeviceIndex',
+			'stopCapture',
+			'encodeVideo',
+			'screenshot',
+		])
 	}
 
 	listDevices(){ return new Promise((resolve, reject) => {
@@ -69,16 +77,37 @@ class Captor extends EventEmitter {
 				// reject(`child process exited with code ${code}`)
 			// }
 		})
+	})}
+
+	/*
 		
+	*/
+	getDeviceIndex(videoDeviceName){ return new Promise((resolve, reject) => {
+		// match a device name
+		var deviceIndex = -1
+		this.listDevices().then(deviceList => {
+			Object.keys(deviceList).forEach(index => {
+				if(deviceList[index] === videoDeviceName){
+					deviceIndex = index
+				}
+			})
+
+			if(deviceIndex !== -1){
+				resolve(deviceIndex)
+			}else{
+				reject(`${videoDeviceName} not found in deviceList: ${JSON.stringify(deviceList)}`)
+			}
+		})
 	})}
 	
 	capture(opts){ return new Promise((resolve, reject) => {
 
 		opts = _.defaults(opts, {
+			scale: undefined,
 			duration: undefined,
 			videoDevice: 0,
 			fps: 6,
-			output: 'image%04d.jpg'
+			output: 'image%04d.jpg',
 		})
 
 		var args = []
@@ -102,9 +131,14 @@ class Captor extends EventEmitter {
 			args.push('1')
 		}
 
-		args.push(opts.output)
+		if(opts.scale) {
+			args.push(`-vf`)
+			args.push(`scale=${opts.scale}`)
+		}
 
+		args.push(opts.output)
 		// console.log(args)
+
 		var proc = spawn(ffmpegPath, args)
 		this.captureProc = proc // cache so we can kill later
 		proc.stderr.on('data', err => {
@@ -115,7 +149,8 @@ class Captor extends EventEmitter {
 		})
 		proc.on('close', code => {
 			// console.log(`child process exited with code ${code}`)
-			if(code === 0){
+			// NOTE: not sure what 255 means, but it says "stderr: Exiting normally, received signal 15."
+			if(code === 0 || code === 255){
 				resolve(opts.output)
 			}else{
 				reject(code)
@@ -132,6 +167,7 @@ class Captor extends EventEmitter {
 		return a promise. rejects if there's nothing to kill	
 	*/ 
 	stopCapture(){ return new Promise((resolve, reject) => {
+		console.log('Captor.stopCapture')
 
 		if(this.captureProc){
 			this.captureProc.on('close', code => {
@@ -147,6 +183,7 @@ class Captor extends EventEmitter {
 	})}
 	
 	encodeVideo(opts){ return new Promise((resolve, reject) => {
+		console.log('Captor.encodeVideo')
 
 		opts = _.defaults(opts, {
 			input: 'image%04d.jpg',
@@ -195,7 +232,8 @@ class Captor extends EventEmitter {
 		}
 		options.videoDevice = opts.videoDevice || options.videoDevice
 		options.output = opts.output || options.output
-		return this.startCapture(options)
+		options.scale = opts.scale || options.scale
+		return this.capture(options)
 	}
 }
 
